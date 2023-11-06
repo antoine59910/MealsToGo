@@ -29,16 +29,15 @@ export const RestaurantsScreen = () => {
 
 const SafeArea = styled(SafeAreaView)`
   flex: 1;
-  margin-top: ${StatusBar.currentHeight}px;
+  ${StatusBar.currentHeight && `margin-top: ${StatusBar.currentHeight}px`};
 `;
 
 const SearchBarView = styled(View)`
-  padding: 16px;
+  padding: ${(props) => props.theme.space[3]};
   justify-content: center;
 `;
 
 const ListView = styled(View)`
-  padding: 16px;
+  padding: ${(props) => props.theme.space[3]};
   flex: 1;
-  background-color: blue;
 `;
