@@ -1,63 +1,76 @@
-import React from "react";
-import { StatusBar, FlatList, SafeAreaView } from "react-native";
-import { Searchbar } from "react-native-paper";
-import styled from "styled-components";
+import React, { useContext, useState } from "react";
+import { FlatList, TouchableOpacity } from "react-native";
+import styled from "styled-components/native";
+
 import { Spacer } from "../../../components/spacer/spacer.component";
-
+import { SafeArea } from "../../../components/utility/safe-area.component";
 import { RestaurantInfoCard } from "../components/restaurant-info-card.component";
+import { Search } from "../components/search.component";
+import { FavouritesBar } from "../../../components/favourites/favourites-bar.component";
 
-export const RestaurantsScreen = () => {
-  const [searchQuery, setSearchQuery] = React.useState("");
+import { FavouritesContext } from "../../../services/favourites/favourites.context";
+import { RestaurantsContext } from "../../../services/restaurants/restaurants.context";
 
-  const onChangeSearch = (query) => setSearchQuery(query);
-
-  return (
-    <SafeArea>
-      <SearchBarContainer>
-        <Searchbar
-          placeholder="Rechercher"
-          onChangeText={onChangeSearch}
-          value={searchQuery}
-        />
-      </SearchBarContainer>
-      <RestaurantList
-        data={[
-          { name: 1 },
-          { name: 2 },
-          { name: 3 },
-          { name: 4 },
-          { name: 5 },
-          { name: 6 },
-          { name: 7 },
-          { name: 8 },
-          { name: 9 },
-          { name: 10 },
-          { name: 11 },
-          { name: 12 },
-        ]}
-        renderItem={() => (
-          <Spacer position="bottom" size="large">
-            <RestaurantInfoCard />
-          </Spacer>
-        )}
-        keyExtractor={(item) => item.name}
-      />
-    </SafeArea>
-  );
-};
-
-const SafeArea = styled(SafeAreaView)`
-  flex: 1;
-  ${StatusBar.currentHeight && `margin-top: ${StatusBar.currentHeight}px`};
-`;
-
-const SearchBarContainer = styled.View`
-  padding: ${(props) => props.theme.space[3]};
-  justify-content: center;
-`;
+import { ActivityIndicator, MD2Colors } from "react-native-paper";
 
 const RestaurantList = styled(FlatList).attrs({
   contentContainerStyle: {
     padding: 16,
   },
 })``;
+
+const Loading = styled(ActivityIndicator)`
+  margin-left: -25px;
+`;
+
+const LoadingContainer = styled.View`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+`;
+
+export const RestaurantsScreen = ({ navigation }) => {
+  const { isLoading, restaurants } = useContext(RestaurantsContext);
+  const { favourites } = useContext(FavouritesContext);
+
+  const [isToggled, setIsToggled] = useState(false);
+
+  return (
+    <SafeArea>
+      {isLoading && (
+        <LoadingContainer>
+          <Loading size={50} animating={true} color={MD2Colors.blue300} />
+        </LoadingContainer>
+      )}
+      <Search
+        onFavouritesToggled={() => setIsToggled(!isToggled)}
+        isFavouritesToggled={isToggled}
+      />
+      {isToggled && (
+        <FavouritesBar
+          favourites={favourites}
+          onNavigate={navigation.navigate}
+        />
+      )}
+      <RestaurantList
+        data={restaurants}
+        renderItem={({ item }) => {
+          return (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate("RestaurantDetail", {
+                  restaurant: item,
+                })
+              }
+            >
+              <Spacer position="bottom" size="large">
+                <RestaurantInfoCard restaurant={item} />
+              </Spacer>
+            </TouchableOpacity>
+          );
+        }}
+        keyExtractor={(item) => item.name}
+      />
+    </SafeArea>
+  );
+};

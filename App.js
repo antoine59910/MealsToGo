@@ -1,21 +1,26 @@
+import "react-native-gesture-handler";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
-import { RestaurantsScreen } from "./src/features/restaurants/screens/restaurants.screen";
+import React from "react";
 
-import * as React from "react";
-import { ThemeProvider } from "styled-components";
+import { ThemeProvider } from "styled-components/native";
 import { theme } from "./src/infrastructure/theme";
-
 import {
   useFonts as useOswald,
   Oswald_400Regular,
 } from "@expo-google-fonts/oswald";
-
 import { useFonts as useLato, Lato_400Regular } from "@expo-google-fonts/lato";
+
+import { RestaurantsContextProvider } from "./src/services/restaurants/restaurants.context";
+import { LocationContextProvider } from "./src/services/location/location.context";
+import { FavouritesContextProvider } from "./src/services/favourites/favourites.context";
+
+import { AppNavigator } from "./src/infrastructure/navigation/app.navigator";
 
 export default function App() {
   const [oswaldLoaded] = useOswald({
     Oswald_400Regular,
   });
+
   const [latoLoaded] = useLato({
     Lato_400Regular,
   });
@@ -27,9 +32,15 @@ export default function App() {
   return (
     <>
       <ThemeProvider theme={theme}>
-        <ExpoStatusBar />
-        <RestaurantsScreen />
+        <FavouritesContextProvider>
+          <LocationContextProvider>
+            <RestaurantsContextProvider>
+              <AppNavigator />
+            </RestaurantsContextProvider>
+          </LocationContextProvider>
+        </FavouritesContextProvider>
       </ThemeProvider>
+      <ExpoStatusBar style="auto" />
     </>
   );
 }
