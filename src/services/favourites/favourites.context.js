@@ -1,7 +1,7 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const FavouritesContext = createContext();
+const FavouritesContext = createContext();
 
 export const FavouritesContextProvider = ({ children }) => {
   const [favourites, setFavourites] = useState([]);
@@ -54,3 +54,5 @@ export const FavouritesContextProvider = ({ children }) => {
     </FavouritesContext.Provider>
   );
 };
+
+export const useFavourites = () => useContext(FavouritesContext);

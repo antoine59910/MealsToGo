@@ -8,8 +8,8 @@ import { RestaurantInfoCard } from "../components/restaurant-info-card.component
 import { Search } from "../components/search.component";
 import { FavouritesBar } from "../../../components/favourites/favourites-bar.component";
 
-import { FavouritesContext } from "../../../services/favourites/favourites.context";
-import { RestaurantsContext } from "../../../services/restaurants/restaurants.context";
+import { useFavourites } from "../../../services/favourites/favourites.context";
+import { useRestaurants } from "../../../services/restaurants/restaurants.context";
 
 import { ActivityIndicator, MD2Colors } from "react-native-paper";
 
@@ -30,8 +30,8 @@ const LoadingContainer = styled.View`
 `;
 
 export const RestaurantsScreen = ({ navigation }) => {
-  const { isLoading, restaurants } = useContext(RestaurantsContext);
-  const { favourites } = useContext(FavouritesContext);
+  const { isLoading, restaurants } = useRestaurants();
+  const { favourites } = useFavourites();
 
   const [isToggled, setIsToggled] = useState(false);
 
