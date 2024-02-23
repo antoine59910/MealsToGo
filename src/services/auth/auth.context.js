@@ -1,5 +1,10 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { signUpFirebase, signInFirebase, FIREBASE_AUTH } from "./auth.service";
+import {
+  signUpFirebase,
+  signInFirebase,
+  FIREBASE_AUTH,
+  signOutUser,
+} from "./auth.service";
 import { onAuthStateChanged } from "firebase/auth";
 
 const AuthContext = createContext({});
@@ -32,22 +37,74 @@ export const AuthContextProvider = ({ children }) => {
       await signInFirebase(email, password);
       // L'écouteur onAuthStateChanged va gérer la mise à jour de l'utilisateur
     } catch (e) {
-      setError(e.message);
+      let message;
+      switch (e.code) {
+        case "auth/invalid-email":
+          message = "email invalide";
+          break;
+        case "auth/invalid-credential":
+          message = "Informations d'identification invalides";
+          break;
+        case "auth/user-not-found":
+          message = "utilisateur inconnu";
+          break;
+        case "auth/wrong-password":
+          message = "mot de passe incorrect";
+          break;
+        case "auth/missing-password":
+          message = "mot de passe manquant";
+          break;
+
+        default:
+          message = e.code.substring("auth/".length);
+          break;
+      }
+      setError(message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const signUp = async (email, password) => {
+  const signUp = async (email, password, repeatedPassword) => {
     setIsLoading(true);
+    if (password !== repeatedPassword) {
+      setError("Les mots de passes ne sont pas identiques");
+      return;
+    }
     try {
       await signUpFirebase(email, password);
       // L'écouteur onAuthStateChanged va également gérer la mise à jour de l'utilisateur
     } catch (e) {
-      setError(e.message);
+      let message;
+      switch (e.code) {
+        case "auth/invalid-email":
+          message = "email invalide";
+          break;
+        case "auth/invalid-credential":
+          message = "Informations d'identification invalides";
+          break;
+        case "auth/user-not-found":
+          message = "utilisateur inconnu";
+          break;
+        case "auth/wrong-password":
+          message = "mot de passe incorrect";
+          break;
+        case "auth/missing-password":
+          message = "mot de passe manquant";
+          break;
+
+        default:
+          message = e.code.substring("auth/".length);
+          break;
+      }
+      setError(message);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const signOut = async () => {
+    signOutUser();
   };
 
   return (
@@ -58,6 +115,7 @@ export const AuthContextProvider = ({ children }) => {
         isLoading,
         signUp,
         signIn,
+        signOut,
         error,
       }}
     >
